@@ -31,6 +31,7 @@ int main(int argc, const char * argv[]) {
         NSLog(@"com.apple.iodkit.hid.displayStatus = %llu", state);
         });
     
+    // start waiting indefinitely
     infinite *in = [[infinite alloc] init];
     [in waitInfinite];
   }
