@@ -54,6 +54,3 @@ double stop() {
     return (((double)elapsedMTU * (double)info.numer / (double)info.denom) / 1000000000);
 }
 
-void gotCTRLC(int signal) {
-  exit(0);
-}
