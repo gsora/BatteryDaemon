@@ -58,7 +58,7 @@ void setup() {
   } else {
     fclose(check_PID);
     pid = fopen(STD_PID_PATH, "w");
-    fprintf(pid, "%s\n", "k");
+    fprintf(pid, "%d\n", getpid());
     fclose(pid);
   }
 

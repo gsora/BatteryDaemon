@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 #include <mach/mach_time.h>
 #include "infinite.h"
 #import <Foundation/Foundation.h>
