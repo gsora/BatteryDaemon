@@ -1,11 +1,13 @@
 #include "batterydaemon.h"
 
-uint64_t startTime;
-
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
+    
+    // register signal handling for SIGINT
+    signal(SIGINT, catch_SIGINT);
 
-    start();
+    // setup PID and log file
+    setup();
 
     int notify_token;
     notify_register_dispatch("com.apple.iokit.hid.displayStatus", &notify_token, dispatch_get_main_queue(), ^(int token) {
@@ -18,10 +20,8 @@ int main(int argc, const char * argv[]) {
           start();
         } else if((int) state == 0) {
           double kk = stop(startTime);
-          NSLog(@"Been awake for %f seconds, or %f minutes", kk, (kk / 60));
+          log_this(kk); 
         }
-
-        NSLog(@"com.apple.iodkit.hid.displayStatus = %llu", state);
         });
     
     infinite *in = [[infinite alloc] init];
@@ -47,3 +47,63 @@ double stop() {
     return (((double)elapsedMTU * (double)info.numer / (double)info.denom) / 1000000000);
 }
 
+void setup() {
+  
+  // check if a PID file is already present, if not create it
+  FILE *check_PID = fopen(STD_PID_PATH, "r");
+  if(check_PID != NULL) {
+    printf("There is already a running instance of batterydaemon.\nTo stop it, send a SIGINT.\n");
+    exit(2);
+    fclose(check_PID);
+  } else {
+    fclose(check_PID);
+    pid = fopen(STD_PID_PATH, "w");
+    fprintf(pid, "%s\n", "k");
+    fclose(pid);
+  }
+
+  // open the log file
+  log_file = fopen(STD_CURRENT_LOG_FILE, "a+");
+
+  // setup with the hour/date when the daemon has been started
+  fprintf(log_file, "%s: %s\n", "START: batterydaemon session has been started ->", currentDateTime());
+
+  // write the start time
+  start();
+}
+
+void shut_all_down() {
+  // log shutdown hour/date
+  fprintf(log_file, "%s %f %s %f %s : %s\n", "STOP: batterydaemon session has been stopped, display has been on for ", display_on_elapsed_time, "seconds, or ", display_on_elapsed_time/60, "minutes ->", currentDateTime());
+
+  // ease reading with \n\n
+  fprintf(log_file, "%s", "\n\n");
+
+  // close the log file
+  fclose(log_file);
+  
+  // delete the PID file
+  remove(STD_PID_PATH);
+
+  // byebye!
+  exit(0);
+}
+
+char *currentDateTime() {
+  NSDateFormatter *formatter;
+  NSString        *dateString;
+  formatter = [[NSDateFormatter alloc] init];
+  [formatter setDateFormat:@"dd-MM-yyyy HH:mm"];
+  dateString = [formatter stringFromDate:[NSDate date]];
+  return [dateString UTF8String];
+}
+
+void log_this(float elapsed_seconds) {
+  display_on_elapsed_time += elapsed_seconds;
+  float elapsed_minutes = elapsed_seconds/60;
+  fprintf(log_file, "LOG: been awake for %f seconds, or %f minutes.\n", elapsed_seconds, elapsed_minutes);
+}
+
+void catch_SIGINT(int signo) {
+  shut_all_down();
+}
