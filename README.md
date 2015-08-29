@@ -15,7 +15,7 @@ So, here's my method to calculate the real device usage.
 
 Right now, the only way to really use this thing is to manually start and stop the daemon from MobileTerminal/SSH.
 
-The daemon will correctly flush all the buffers and kill himself if a **SIGINT** will be issued, and it writes its PID at ~/.batterydaemon.pid (the PID file), to ease the stop process.
+The daemon will correctly flush all the buffers and kill himself if a **SIGINT** is issued, and it writes its PID at ~/.batterydaemon.pid (the PID file), to ease the stop process.
 
 I will provide a simple application to start/stop the daemon soon.
 
