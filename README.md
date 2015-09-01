@@ -25,10 +25,9 @@ The Makefile is able to produce a `debug` and `release` build: the default targe
 
     # to produce a debug build
     make
-
     # to produce a release build
     make release
 
 Then upload it via SSH to your device.
 
-A .deb package will be provided soon.
+A .deb package will be provided soon, while a sample log can be found [here](https://gist.github.com/peppelakappa/a57b4849813a4131902e).
